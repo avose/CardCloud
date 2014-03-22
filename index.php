@@ -596,14 +596,19 @@ by <a href="http://www.aaronvose.net/">Aaron Vose</a> -- v. CardCloud-0.0.1-alph
     preserveAspectRatio="xMinYMax";
     id="svgelement"
     >
+    <defs>
+    <pattern id="board-bg" x="0" y="0" patternunits="userSpaceOnUse" width="256" height="256">
+      <image xlink:href="cards/board_felt.jpeg" width="256" height="256" x="0" y="0">
+    </pattern>
+    </defs>
 
     <desc>CardCloud SVG Display Area</desc>
 
-    <rect id="background" x="0" y="0" width="854" height="480" fill="white" stroke="black" onmouseup="handleMouseUp(evt)" onmousedown="handleMouseDown(evt)" onmousemove="handleMouseMove(evt)" />
+    <rect id="background" x="0" y="0" width="854" height="480" fill="url(#board-bg)" stroke="black" onmouseup="handleMouseUp(evt)" onmousedown="handleMouseDown(evt)" onmousemove="handleMouseMove(evt)" />
 
     <g id="tfbox" transform="" width="856" height="480" ></g>
 
-    <text id="frame" x="700" y="13" font-size="10" fill="black">frame: 0</text>
+    <text id="frame" x="700" y="16" font-size="16" fill="black">mode: Move</text>
 
 </svg>
 <br><br>
