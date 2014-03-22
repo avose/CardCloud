@@ -316,6 +316,8 @@ function init() {
     
     svgel.style.cursor="move";
     document.addEventListener('keypress',keyPress,false);
+
+    select_deck();
 }
 
 
@@ -399,7 +401,9 @@ function clear_svg()
     while( tfbox.lastChild ) {
 	tfbox.removeChild(tfbox.lastChild);
     }
-    lastTime = 0;
+    //lastTime = 0;
+    Cards    = [];
+    nCards   = 0;
 }
 
 
@@ -520,7 +524,6 @@ function StartCardCloud()
 {
     window.ondragstart = function() { return false; }
     clear_svg();
-    AddRandomCards();
     window.setTimeout(svg_tick,50);
 }
 
@@ -528,36 +531,26 @@ function StartCardCloud()
 ///////////////////////////////////////////////
 
 
-function AddRandomCards()
+function AddCards(acards)
 {
-    var id  = 0;
-    var i;
-    
-    Cards[0] = new Object();
-    Cards[0].id  = id++;
-    Cards[0].n   = "Redirect";
-    Cards[0].img = "cards/card_redirect.jpeg";
+  var i;
 
-    Cards[1] = new Object();
-    Cards[1].id  = id++;
-    Cards[1].n   = "Counter Spell";
-    Cards[1].img = "cards/card_counterspell.jpeg";
+  clear_svg();
+  
+  for(i=0; i<acards.length; i++) {
+    Cards[nCards]     = new Object();
+    Cards[nCards].id  = nCards;
+    Cards[nCards].img = String(acards[i]);
+    Cards[nCards].n   = "";
+    Cards[nCards].l = new Array();
+    Cards[nCards].l[0] = (Math.floor(Math.random()*100)) - 50 + 150;
+    Cards[nCards].l[1] = (Math.floor(Math.random()*100)) - 50 + 150;
+    Cards[nCards].m = 1.0;
+    Cards[nCards].z = nCards;
+    nCards++;
+  }
 
-    Cards[2] = new Object();
-    Cards[2].id  = id++;
-    Cards[2].n   = "Psychic Barrier";
-    Cards[2].img = "cards/card_psychicbarrier.jpeg";
-    
-    nCards = id;
-    
-    // Init the card positions
-    for(i=0; i<nCards; i++) {
-      Cards[i].l = new Array();
-      Cards[i].l[0] = (Math.floor(Math.random()*100)) - 50 + 150;
-      Cards[i].l[1] = (Math.floor(Math.random()*100)) - 50 + 150;
-      Cards[i].m = 1.0;
-      Cards[i].z = id;
-    }
+  fill_cards();
 }
 
 
@@ -569,6 +562,7 @@ function AddRandomCards()
 
 
 <script type="text/javascript" src="mwheel.js"></script>
+<script type="text/javascript" src="deck.js"></script>
 
 
 <!-- /////////////////////////////////////////////////////// -->
@@ -618,10 +612,13 @@ by <a href="http://www.aaronvose.net/">Aaron Vose</a> -- v. CardCloud-0.0.1-alph
 
 
 <small>
-<p>
-    Controls:<br>
-<table><tr>
-<td>
+<table border="1px" cellspacing="0px" cellpadding="4px">
+<tr><td>
+<img src="png/images.png"/> Select Deck
+</td><td>
+<input type="file" id="deckfiles" name="files[]" />
+<output id="decklist"></output>
+</td><td>
 <ul>
     <li>d: delete cards</li>
     <li>t: tap/untap cards</li>
@@ -633,6 +630,15 @@ by <a href="http://www.aaronvose.net/">Aaron Vose</a> -- v. CardCloud-0.0.1-alph
     <li>mwheel: zoom in/out</li>
 </ul>
 </td></tr></table>
+</small>
+
+
+<!-- /////////////////////////////////////////////////////// -->
+
+
+<small>
+<p>
+
 </p>
 </small>
 

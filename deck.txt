@@ -1,0 +1,5 @@
+cards/card_aetherize.jpeg
+cards/card_counterspell.jpeg
+cards/card_redirect.jpeg
+cards/card_psychicbarrier.jpeg
+cards/card_tellingtime.jpeg
