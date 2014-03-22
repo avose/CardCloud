@@ -11,9 +11,8 @@ function handleFileSelect(evt)
 		       return function(e) {
 			 var cards = e.target.result.split('\n');
 			 // Add list of cards to page
-			 var span = document.createElement('span');
+			 var span = document.getElementById('decklist');
 			 span.innerHTML = "<hr><tiny>" + cards.join('<br>') + "</tiny>";
-			 document.getElementById('decklist').insertBefore(span, null);
 			 // Add the cards to the game
 			 AddCards(cards);
 		       };

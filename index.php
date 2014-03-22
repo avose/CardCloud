@@ -616,7 +616,7 @@ by <a href="http://www.aaronvose.net/">Aaron Vose</a> -- v. CardCloud-0.0.1-alph
 <tr><td style="align:center">
 <img src="png/images.png"/> Deck:
 <input type="file" id="deckfiles" name="files[]" />
-<output id="decklist"></output>
+<span id="decklist"></span>
 </td><td>
 <table><tr><td>
 <ul>
