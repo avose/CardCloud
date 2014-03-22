@@ -139,11 +139,111 @@ function getScreenCTM(doc){
     return sCTM;
 }
 
+
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+
+var keymode = 'm';
+
+
+function keymode2str()
+{
+  switch( keymode ) {
+  case 't':
+    return "Tap/Untap";
+  case 'd':
+    return "Delete";
+  case 'm':
+    return "Move";
+  case 'f':
+    return "Flip";
+  }
+}
+
+
+function update_cursor()
+{
+  switch( keymode ) {
+  case 't':
+    svgel.style.cursor="url(png/arrow_refresh.png),crosshair";
+    break;
+  case 'd':
+    svgel.style.cursor="url(png/cross.png),not-allowed";
+    break;
+  case 'm':
+    svgel.style.cursor="move";
+    break;
+  case 'f':
+    svgel.style.cursor="url(png/arrow_switch.png),crosshair";
+    break;
+  }
+}
+
+
+function keyPress(evt)
+{ 
+  var charkey = '\0';
+
+  if (evt.which == null) {
+    charkey = String.fromCharCode(evt.keyCode);
+  } else if (evt.which!=0 && evt.charCode!=0) {
+    charkey = String.fromCharCode(evt.which);
+  }
+
+  switch( charkey ) {
+  case 't':
+    keymode = 't';
+    break;
+  case 'd':
+    keymode = 'd';
+    break;
+  case 'm':
+    keymode = 'm';
+    break;
+  case 'f':
+    keymode = 'f';
+    break;
+  }
+
+  update_cursor();
+  update_textframe();
+}
+
     
 function mouseDown(evt) 
 { 
     var target = evt.currentTarget;
-    draggingElement = target;
+    var c = Cards[ parseInt(target.getAttribute("id")) ];
+
+    if( !c ) {
+      return;
+    }
+
+    switch( keymode ) {
+    case 'm':
+      draggingElement = target;
+      break;
+    case 'd':
+      target.setAttribute("visibility", "hidden");
+      c.hidden = true;
+      break;
+    case 'f':
+      if( c.flipped == true ) {
+	c.flipped = false;
+      } else {
+	c.flipped = true;
+      }
+      break;
+    case 't':
+      if( c.tapped ) {
+	c.tapped = false;
+      } else {
+	c.tapped = true;
+      }
+      update_cards();
+      break;
+    }
 }
 
 
@@ -188,6 +288,9 @@ function mouseMove(evt)
 function init() {
     svgel = document.getElementById("svgelement");
     tfbox = svgel.getElementById("tfbox");
+    
+    svgel.style.cursor="move";
+    document.addEventListener('keypress',keyPress,false);
 }
 
 
@@ -230,6 +333,11 @@ function handleMouseDown(event)
 
 function handleMouseUp(event)
 {
+    // Only in move mode
+    if( keymode != 'm' ) {
+      return;
+    }
+
     mdown = false;
     if( !draggingElement ) {
 	// Update translate values for x and y
@@ -251,6 +359,11 @@ function handleMouseMove(event)
     // Skip if the mouse isn't down
     if( !mdown ) {
 	return;
+    }
+
+    // Only in move mode
+    if( keymode != 'm' ) {
+      return;
     }
 
     if( !draggingElement ) {
@@ -316,7 +429,16 @@ function update_cards()
       if( card ) {
         card.setAttribute("dragx", Cards[i].l[0]);
         card.setAttribute("dragy", Cards[i].l[1]);
-        card.setAttribute("transform", "translate(" + (Cards[i].l[0]-100) + "," + (Cards[i].l[1]-100) + ")");
+	if( Cards[i].tapped == true ) {
+	  card.setAttribute("transform", "translate(" + (Cards[i].l[0]-100) + "," + (Cards[i].l[1]-100) + ") rotate(-90,100,100)");
+	} else {
+	  card.setAttribute("transform", "translate(" + (Cards[i].l[0]-100) + "," + (Cards[i].l[1]-100) + ")");
+	}
+	if( Cards[i].flipped == true ) {
+	  card.setAttributeNS('http://www.w3.org/1999/xlink','href',"cards/card_back.jpeg");
+	} else {
+	  card.setAttributeNS('http://www.w3.org/1999/xlink','href',Cards[i].img);
+	}
       }
     }
 }
@@ -326,6 +448,15 @@ function update_cards()
 function update_container()
 {
     tfbox.setAttribute("transform","scale("+zoom+") "+"translate("+tx+","+ty+")");
+}
+
+
+function update_textframe()
+{
+  var frame = svgel.getElementById("frame");
+  if( frame ) {
+    frame.firstChild.nodeValue = "mode: " + keymode2str(); // + " frame: " + framenum;
+  }
 }
 
 
@@ -339,10 +470,7 @@ function draw()
     } else {
 	update_container();
 	update_cards();
-	var frame = svgel.getElementById("frame");
-	if( frame ) {
-            frame.firstChild.nodeValue = "frame: " + framenum;
-	}
+	update_textframe();
     }
 }
 
@@ -470,12 +598,35 @@ by <a href="http://www.aaronvose.net/">Aaron Vose</a> -- v. CardCloud-0.0.1-alph
 
     <rect id="background" x="0" y="0" width="854" height="480" fill="white" stroke="black" onmouseup="handleMouseUp(evt)" onmousedown="handleMouseDown(evt)" onmousemove="handleMouseMove(evt)" />
 
-    <g id="tfbox" transform="" width="856" height="480"></g>
+    <g id="tfbox" transform="" width="856" height="480" ></g>
 
-    <text id="frame" x="779" y="13" font-size="10" fill="black">frame: 0</text>
+    <text id="frame" x="700" y="13" font-size="10" fill="black">frame: 0</text>
 
 </svg>
 <br><br>
+
+
+<!-- /////////////////////////////////////////////////////// -->
+
+
+<small>
+<p>
+    Controls:<br>
+<table><tr>
+<td>
+<ul>
+    <li>d: delete cards</li>
+    <li>t: tap/untap cards</li>
+    <li>m: move cards</li>
+</ul>
+</td><td>
+<ul>
+    <li>f: flip cards</li>
+    <li>mwheel: zoom in/out</li>
+</ul>
+</td></tr></table>
+</p>
+</small>
 
 
 <!-- /////////////////////////////////////////////////////// -->
