@@ -613,12 +613,12 @@ by <a href="http://www.aaronvose.net/">Aaron Vose</a> -- v. CardCloud-0.0.1-alph
 
 <small>
 <table border="1px" cellspacing="0px" cellpadding="4px">
-<tr><td>
-<img src="png/images.png"/> Select Deck
-</td><td>
+<tr><td style="align:center">
+<img src="png/images.png"/> Deck:
 <input type="file" id="deckfiles" name="files[]" />
 <output id="decklist"></output>
 </td><td>
+<table><tr><td>
 <ul>
     <li>d: delete cards</li>
     <li>t: tap/untap cards</li>
@@ -629,6 +629,7 @@ by <a href="http://www.aaronvose.net/">Aaron Vose</a> -- v. CardCloud-0.0.1-alph
     <li>f: flip cards</li>
     <li>mwheel: zoom in/out</li>
 </ul>
+</td></tr></table>
 </td></tr></table>
 </small>
 
