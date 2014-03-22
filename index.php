@@ -1,5 +1,5 @@
+<!doctype html>
 
-    <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -153,8 +153,8 @@ function mouseUp(evt)
 
     if(draggingElement) {
 	// Unlock node position in mem
-	var n = Nodes[ parseInt(draggingElement.getAttribute("id")) ];
-	n.locked = false;
+	var c = Cards[ parseInt(draggingElement.getAttribute("id")) ];
+	c.locked = false;
     }
 
     draggingElement = null;
@@ -177,22 +177,11 @@ function mouseMove(evt)
         draggingElement.setAttribute("dragx", p.x);
         draggingElement.setAttribute("dragy", p.y);
 	// Update node position in mem
-	var n = Nodes[ parseInt(draggingElement.getAttribute("id")) ];
-	n.l[0] = p.x;
-	n.l[1] = p.y;
-	n.locked = true;
+	var c = Cards[ parseInt(draggingElement.getAttribute("id")) ];
+	c.l[0] = p.x;
+	c.l[1] = p.y;
+	c.locked = true;
     }
-}
-
-
-function txtmouseDown(evt) 
-{ 
-    var target = evt.currentTarget;
-    var id = target.id;
-
-    id = id.substr(0, id.length-(" - text".length));
-    target = svgel.getElementById(id);
-    draggingElement = target;
 }
 
 
@@ -207,18 +196,12 @@ function init() {
 
 
 ///////////////////////////////////////////////
-// SVG user interface device code
+// SVG user interface code
 ///////////////////////////////////////////////
 
 
-var Root     = new Object();
-var MaxDepth = 0;
-var Newick;
-
 var svgel;
 var tfbox;
-
-var XMLHTTPClient;
 
 var lastTime = 0;
 var framenum = 0;
@@ -229,9 +212,6 @@ var my    = 0;
 var tx    = 0;
 var ty    = 0;
 var zoom  = 1.0;
-
-var font_size = 12;
-
 
 
 function handle_delta(delta)
@@ -304,111 +284,43 @@ function clear_svg()
 }
 
 
-function fill_nodes(n,d)
+function fill_cards()
 {
     var i;
     
-    // Add ourself
-    var card = document.createElementNS("http://www.w3.org/2000/svg", "image");
-    card.setAttribute("x", "0");
-    card.setAttribute("y", "0");
-    card.setAttribute("width", "200px");
-    card.setAttribute("height", "200px");
-    card.setAttributeNS('http://www.w3.org/1999/xlink','href','cards/card_redirect.jpeg');
-    card.setAttribute("draggable", "false");
-    card.setAttribute("transform", "translate(" + (n.l[0]-100) + "," + (n.l[1]-100) + ")");
-    card.setAttribute("fill", "rgb(64,64,128)");
-    card.setAttribute("dragx", n.l[0]);
-    card.setAttribute("dragy", n.l[1]);
-    card.setAttribute("id", n.id);
-    card.setAttribute("opacity", "1.00");
-    card.addEventListener("mousedown", mouseDown, false);
-    tfbox.appendChild(card);
-
-    // Add our children
-    for(i=0; i < n.nc; i++) {
-	// Process the child
-	fill_nodes(n.c[i],d+1);
-    }
-    
+    for(i=0; i<nCards; i++) {
+      var card = document.createElementNS("http://www.w3.org/2000/svg", "image");
+      card.setAttribute("x", "0");
+      card.setAttribute("y", "0");
+      card.setAttribute("width", "200px");
+      card.setAttribute("height", "200px");
+      card.setAttributeNS('http://www.w3.org/1999/xlink','href',Cards[i].img);
+      card.setAttribute("draggable", "false");
+      card.setAttribute("transform", "translate(" + (Cards[i].l[0]-100) + "," + (Cards[i].l[1]-100) + ")");
+      card.setAttribute("dragx", Cards[i].l[0]);
+      card.setAttribute("dragy", Cards[i].l[1]);
+      card.setAttribute("id", Cards[i].id);
+      card.setAttribute("opacity", "1.00");
+      card.addEventListener("mousedown", mouseDown, false);
+      tfbox.appendChild(card);
+    }    
 }
 
 
-function fill_labels(n,d)
-{
-    var i;
-    
-    // Add a label for ourself
-    if( !(n.nc) || (n.id == 0) || ((n.collapsedname != undefined) && (n.collapsedname != "")) ) {
-	var newText = document.createElementNS("http://www.w3.org/2000/svg","text");
-	newText.setAttributeNS(null,"x",0);
-	newText.setAttributeNS(null,"y",0);
-	newText.setAttributeNS(null,"transform", "translate(" + (n.l[0]) + "," + (n.l[1]-5) + ")");
-	newText.setAttributeNS(null,"font-size",font_size);
-	newText.setAttributeNS(null,"text-anchor","middle");
-	newText.setAttributeNS(null,"fill-opacity","1.0");
-	newText.setAttributeNS(null,"fill","black");
-	newText.setAttributeNS(null,"id",n.id + " - text");
-	newText.addEventListener("mousedown", txtmouseDown, false);
-	newText.addEventListener("mouseup", mouseUp, false);
-	var textNode;
-	if( (n.collapsedname != undefined) && (n.collapsedname != "") ) {
-	    textNode = document.createTextNode(n.collapsedname);
-	} else {
-	    textNode = document.createTextNode(n.n);
-	}
-	newText.appendChild(textNode);
-	tfbox.appendChild(newText);
-    }
-    
-    // Add our children
-    for(i=0; i < n.nc; i++) {
-	// Process the child
-	fill_labels(n.c[i],d+1);
-    }
-    
-}
-
-
-function update_node(n)
+function update_cards()
 {
     var i;
 
-    // Update our position
-    var card = svgel.getElementById(n.id);
-    if( card ) {
-        card.setAttribute("dragx", n.l[0]);
-        card.setAttribute("dragy", n.l[1]);
-        card.setAttribute("transform", "translate(" + (n.l[0]-100) + "," + (n.l[1]-100) + ")");
-    }
-    
-    // Update our label
-    /*
-    var label = svgel.getElementById(n.id + " - text");
-    if( label ) {
-        label.setAttributeNS(null,"transform", "translate(" + (n.l[0]) + "," + (n.l[1]-5) + ")");
-	if( n.selected ) {
-	    label.setAttributeNS(null,"font-size",font_size*1.3);
-	} else {
-	    label.setAttributeNS(null,"font-size",font_size);
-	}
-    }
-    */
-}
-
-
-function update_pos(n)
-{
-    var i;
-
-    // Update this node
-    update_node(n);
-
-    // Update our children
-    for(i=0; i < n.nc; i++) {
-	update_pos(n.c[i]);
+    for(i=0; i<nCards; i++) {
+      var card = svgel.getElementById(Cards[i].id);
+      if( card ) {
+        card.setAttribute("dragx", Cards[i].l[0]);
+        card.setAttribute("dragy", Cards[i].l[1]);
+        card.setAttribute("transform", "translate(" + (Cards[i].l[0]-100) + "," + (Cards[i].l[1]-100) + ")");
+      }
     }
 }
+
 
 
 function update_container()
@@ -420,15 +332,13 @@ function update_container()
 function draw()
 {
     if( lastTime == 0 ) {
-	// This is the first time we are drawing the fdp.
-	// Treat this as a kind of init, and load the tree data
-	// into the svg object.
-	fill_nodes(Root,1);
-	//fill_labels(Root,1);
+	// This is the first time we are drawing.
+	// Treat this as a kind of init.
+	fill_cards();
 	window.setTimeout(svg_tick,50);
     } else {
 	update_container();
-	update_pos(Root);
+	update_cards();
 	var frame = svgel.getElementById("frame");
 	if( frame ) {
             frame.firstChild.nodeValue = "frame: " + framenum;
@@ -484,172 +394,39 @@ function StartCardCloud()
 ///////////////////////////////////////////////
 
 
-var  Nodes = new Array();
-var nNodes = 0;
-
-
-var rid = 0;
-
-
-function FlattenTree(n)
-{
-    var i,cnt;
-
-    // Add ourself to the flat list
-    n.id = rid++;
-    Nodes[n.id] = n;
-
-    for(i=cnt=0; i<n.nc; i++) {
-	cnt += FlattenTree(n.c[i]);
-    }
-    
-    return cnt+1;
-}
-
-
-function CountLeaves(n)
-{
-    var i,cnt;
-
-    if( n.nc ) {
-	for(i=cnt=0; i<n.nc; i++) {
-	    cnt += CountLeaves(n.c[i]);
-	}
-    } else {
-	cnt = 1;
-    }
-
-    n.leaves = cnt;
-
-    return cnt;
-}
-
-
-///////////////////////////////////////////////
-
-
-// Initializes node loataions to something reasonable
-function TreeInitLocRecur(l, s, w, n)
-{
-  var p = [ 0.0, 0.0 ];
-  var i = 0;
-
-  // Set our position and mass
-  if( n.p ) {
-    p = n.p.l;
-  }
-  n.l = new Array();
-  n.l[0] = p[0] + (Math.floor(Math.random()*100)) - 50 + 150;
-  n.l[1] = p[1] + (Math.floor(Math.random()*100)) - 50 + 150;
-  n.m = 1.0;
-
-  // Let our children set their position
-  for(i=0; i < n.nc; i++) {
-    TreeInitLocRecur(l+1, n.nc, i, n.c[i]);
-  }
-}
-
-
-///////////////////////////////////////////////
-// Newick Tree Format Parser
-///////////////////////////////////////////////
-
-
-// Test for digits
-function isDigit(aChar)
-{
-    myCharCode = aChar.charCodeAt(0);
-    
-    if((myCharCode > 47) && (myCharCode <  58))
-    {
-        return true;
-    }
-    
-    return false;
-}
+var  Cards = new Array();
+var nCards = 0;
 
 
 function AddRandomCards()
 {
-    var p   = new Object();
-    var c   = new Object();  
-    var brk = 0;
     var id  = 0;
-    var i   = 0;
+    var i;
     
-    // Create a root node and an initial child
-    p.n           = "ROOT_NODE";
-    p.id          = id++;
-    p.d           = 0;
-    p.v           = new Array();
-    p.c           = new Array();
-    p.nc          = 0;
-    p.c[p.nc]     = new Object();
-    p.c[p.nc].p   = p;
-    p.c[p.nc].d   = p.d+1;
-    p.c[p.nc].n   = "";
-    p.c[p.nc].nc  = 0;
-    p.c[p.nc].id  = id++;
-    c = p.c[p.nc];
-    p.nc++;
-    if(c.d > MaxDepth) {
-	MaxDepth = c.d;
+    Cards[0] = new Object();
+    Cards[0].id  = id++;
+    Cards[0].n   = "Redirect";
+    Cards[0].img = "cards/card_redirect.jpeg";
+
+    Cards[1] = new Object();
+    Cards[1].id  = id++;
+    Cards[1].n   = "Counter Spell";
+    Cards[1].img = "cards/card_counterspell.jpeg";
+
+    Cards[2] = new Object();
+    Cards[2].id  = id++;
+    Cards[2].n   = "Psychic Barrier";
+    Cards[2].img = "cards/card_psychicbarrier.jpeg";
+    
+    nCards = id;
+    
+    // Init the card positions
+    for(i=0; i<nCards; i++) {
+      Cards[i].l = new Array();
+      Cards[i].l[0] = (Math.floor(Math.random()*100)) - 50 + 150;
+      Cards[i].l[1] = (Math.floor(Math.random()*100)) - 50 + 150;
+      Cards[i].m = 1.0;
     }
-    Root = p;
-    
-    // Current node will be internal:  Give it a child and move deeper into the tree.
-    p = c;
-    if( p.c == null ) {
-      p.c = new Array();
-    }
-    p.c[p.nc]    = new Object();
-    p.c[p.nc].v  = [ 0.0, 0.0 ];
-    p.c[p.nc].p  = p;
-    p.c[p.nc].d  = p.d+1;
-    p.c[p.nc].n  = "";
-    p.c[p.nc].id = id++;
-    p.c[p.nc].nc = 0;
-    c = p.c[p.nc];
-    p.nc++;
-    // Check for maxdepth
-    if(c.d > MaxDepth) {
-      MaxDepth = c.d;
-    }
-    
-    // Debug message
-    nNodes = id;
-    var bpr = nNodes;
-    
-    // Init the node positions
-    TreeInitLocRecur(0, 0, 0, Root);
-    
-    // Flatten tree
-    nNodes = FlattenTree(Root);
-    var apr = nNodes;
-
-    // Count leaves
-    CountLeaves(Root);
-    //    alert("Newick data contains " + bpr + " nodes. " +
-    //	  "There are " + apr + " nodes and " + Root.leaves + " species.\n\n");
-}
-
-
-/////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-
-
-function fszchg()
-{
-    var sb = document.getElementById("fontsize");
-    font_size = sb.value;
-    var lbl = document.getElementById("txtsz");
-    lbl.innerHTML = font_size;
-}
-
-
-function settype(mode) 
-{
-    clear_svg();
 }
 
 
