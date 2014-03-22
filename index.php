@@ -144,7 +144,25 @@ function getScreenCTM(doc){
 /////////////////////////////////////////////////////////////////////
 
 
+var  Cards = new Array();
+var nCards = 0;
 var keymode = 'm';
+var svgel;
+var tfbox;
+
+var lastTime = 0;
+var framenum = 0;
+
+var mdown = false;
+var mx    = 0;
+var my    = 0;
+var tx    = 0;
+var ty    = 0;
+var zoom  = 1.0;
+
+
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 
 function keymode2str()
@@ -214,7 +232,9 @@ function keyPress(evt)
 function mouseDown(evt) 
 { 
     var target = evt.currentTarget;
-    var c = Cards[ parseInt(target.getAttribute("id")) ];
+    var ndx = parseInt(target.getAttribute("id"));
+    var c = Cards[ndx];
+    var i;
 
     if( !c ) {
       return;
@@ -223,6 +243,11 @@ function mouseDown(evt)
     switch( keymode ) {
     case 'm':
       draggingElement = target;
+      tfbox.appendChild(target);
+      c.z = nCards-1;
+      for(i=c.id; i<nCards; i++) {
+	Cards[i].z--;
+      }
       break;
     case 'd':
       target.setAttribute("visibility", "hidden");
@@ -296,25 +321,6 @@ function init() {
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////
-// SVG user interface code
-///////////////////////////////////////////////
-
-
-var svgel;
-var tfbox;
-
-var lastTime = 0;
-var framenum = 0;
-
-var mdown = false;
-var mx    = 0;
-var my    = 0;
-var tx    = 0;
-var ty    = 0;
-var zoom  = 1.0;
 
 
 function handle_delta(delta)
@@ -522,10 +528,6 @@ function StartCardCloud()
 ///////////////////////////////////////////////
 
 
-var  Cards = new Array();
-var nCards = 0;
-
-
 function AddRandomCards()
 {
     var id  = 0;
@@ -554,6 +556,7 @@ function AddRandomCards()
       Cards[i].l[0] = (Math.floor(Math.random()*100)) - 50 + 150;
       Cards[i].l[1] = (Math.floor(Math.random()*100)) - 50 + 150;
       Cards[i].m = 1.0;
+      Cards[i].z = id;
     }
 }
 
