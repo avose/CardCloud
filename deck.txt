@@ -1,5 +1,10 @@
-cards/card_aetherize.jpeg
-cards/card_counterspell.jpeg
-cards/card_redirect.jpeg
-cards/card_psychicbarrier.jpeg
-cards/card_tellingtime.jpeg
+cards/card_aetherize.jpeg Aetherize
+cards/card_counterspell.jpeg Couter_Spell
+cards/card_redirect.jpeg Redirect
+cards/card_psychicbarrier.jpeg Psychic_Barrier
+cards/card_tellingtime.jpeg Telling_Time
+cards/card_aetherize.jpeg Aetherize
+cards/card_counterspell.jpeg Couter_Spell
+cards/card_redirect.jpeg Redirect
+cards/card_psychicbarrier.jpeg Psychic_Barrier
+cards/card_tellingtime.jpeg Telling_Time
