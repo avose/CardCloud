@@ -1,9 +1,9 @@
 #!/bin/bash
 
 for f in *.jpg ; do
-    convert $f $f.png
-    echo -n "data:image/png;base64," > $f.png.deck
-    base64 -w 0 $f.png >> $f.png.deck
-    echo -n " " >> $f.png.deck
-    echo -n $f | sed -e 's/\..*$//' | sed -e 's/_/ /' >> $f.png.deck
+    convert -resize 32768@ "$f" "$f.png"
+    echo -n "data:image/png;base64," > "$f.png.deck"
+    base64 -w 0 "$f.png" >> "$f.png.deck"
+    echo -n " " >> "$f.png.deck"
+    echo -n "$f" | sed -e 's/\..*$//' | sed -e 's/ /_/' >> "$f.png.deck"
 done
