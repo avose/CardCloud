@@ -538,10 +538,11 @@ function AddCards(acards)
   clear_svg();
   
   for(i=0; i<acards.length; i++) {
+    var cwords = acards[i].split(' ');
     Cards[nCards]     = new Object();
     Cards[nCards].id  = nCards;
-    Cards[nCards].img = String(acards[i]);
-    Cards[nCards].n   = "";
+    Cards[nCards].img = String(cwords[0]);
+    Cards[nCards].n   = String(cwords[1]);
     Cards[nCards].l = new Array();
     Cards[nCards].l[0] = (Math.floor(Math.random()*100)) - 50 + 150;
     Cards[nCards].l[1] = (Math.floor(Math.random()*100)) - 50 + 150;
@@ -615,8 +616,8 @@ by <a href="http://www.aaronvose.net/">Aaron Vose</a> -- v. CardCloud-0.0.1-alph
 <table border="1px" cellspacing="0px" cellpadding="4px">
 <tr><td style="align:center">
 <img src="png/images.png"/> Deck:
-<input type="file" id="deckfiles" name="files[]" />
-<span id="decklist"></span>
+<input type="file" id="deckfiles" name="files[]" /><br><hr>
+<select size="6" name="decklist" id="decklist" multiple></select>
 </td><td>
 <table><tr><td>
 <ul>
