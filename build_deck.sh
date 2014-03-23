@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# http://www.mtgathering.ru/hqpics
+
 for f in *.jpg ; do
     convert -resize 32768@ "$f" "$f.png"
     echo -n "data:image/png;base64," > "$f.png.deck"
