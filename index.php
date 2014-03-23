@@ -254,6 +254,7 @@ function mouseDown(evt)
       c.hidden = true;
       break;
     case 'f':
+      c.flipped_time = new Date().getTime();
       if( c.flipped == true ) {
 	c.flipped = false;
       } else {
@@ -261,6 +262,7 @@ function mouseDown(evt)
       }
       break;
     case 't':
+      c.tapped_time = new Date().getTime();
       if( c.tapped ) {
 	c.tapped = false;
       } else {
@@ -439,15 +441,34 @@ function update_cards()
       if( card ) {
         card.setAttribute("dragx", Cards[i].l[0]);
         card.setAttribute("dragy", Cards[i].l[1]);
-	if( Cards[i].tapped == true ) {
-	  card.setAttribute("transform", "translate(" + (Cards[i].l[0]-100) + "," + (Cards[i].l[1]-100) + ") rotate(-90,100,100)");
+	if( Cards[i].flipped_time ) {
+	  var tnsfrm = String();
+	  tnsfrm = tnsfrm + "translate(" + (Cards[i].l[0]-100*Cards[i].flp) + "," + (Cards[i].l[1]-100) + ") ";
+	  tnsfrm = tnsfrm + "scale("+String(Cards[i].flp)+",1) ";
+	  tnsfrm = tnsfrm + "rotate(-"+String(Cards[i].rot)+",100,100) ";
+	  card.setAttribute("transform", tnsfrm);
 	} else {
-	  card.setAttribute("transform", "translate(" + (Cards[i].l[0]-100) + "," + (Cards[i].l[1]-100) + ")");
+	  var tnsfrm = String();
+	  tnsfrm = tnsfrm + "translate(" + (Cards[i].l[0]-100) + "," + (Cards[i].l[1]-100) + ") ";
+	  tnsfrm = tnsfrm + "rotate(-"+String(Cards[i].rot)+",100,100) ";
+	  card.setAttribute("transform", tnsfrm);
 	}
-	if( Cards[i].flipped == true ) {
-	  card.setAttributeNS('http://www.w3.org/1999/xlink','href',"cards/card_back.jpeg");
-	} else {
-	  card.setAttributeNS('http://www.w3.org/1999/xlink','href',Cards[i].img);
+	if( Cards[i].flipped_time ) {
+	  var timeNow = new Date().getTime();
+	  var anim_time = timeNow-Cards[i].flipped_time;
+	  if( anim_time > 250 ) {
+	    if( Cards[i].flipped == true  ) {
+	      card.setAttributeNS('http://www.w3.org/1999/xlink','href',"cards/card_back.jpeg");	      
+	    } else {
+	      card.setAttributeNS('http://www.w3.org/1999/xlink','href',Cards[i].img);
+	    }
+	  } else {
+	    if( Cards[i].flipped == true  ) {
+	      card.setAttributeNS('http://www.w3.org/1999/xlink','href',Cards[i].img);
+	    } else {
+	      card.setAttributeNS('http://www.w3.org/1999/xlink','href',"cards/card_back.jpeg");	      
+	    }
+	  }
 	}
       }
     }
@@ -501,6 +522,32 @@ function animate()
         var elapsed = timeNow - lastTime;
     }
     lastTime = timeNow;
+
+    // Update animation state of anything needing animating
+    for(var i=0; i<nCards; i++) {
+      // Animate tapping
+      if( Cards[i].tapped_time ) {
+	var anim_time = timeNow-Cards[i].tapped_time;
+	if( anim_time > 500 ) {
+	  anim_time = 500;
+	  Cards[i].tapped_time = 0;
+	}
+	if( Cards[i].tapped ) {
+	  Cards[i].rot = (anim_time/500.0)*90.0;
+	} else {
+	  Cards[i].rot = 90.0-(anim_time/500.0)*90.0;
+	}
+      }
+      // Animate flipping
+      if( Cards[i].flipped_time ) {
+	var anim_time = timeNow-Cards[i].flipped_time;
+	if( anim_time > 500 ) {
+	  anim_time = 500;
+	  Cards[i].flipped_time = 0;
+	}
+	Cards[i].flp = Math.abs(1.0-(anim_time/500.0)*2.0);
+      }
+    }
 }
 
 
@@ -548,6 +595,8 @@ function AddCards(acards)
     Cards[nCards].l[1] = (Math.floor(Math.random()*100)) - 50 + 150;
     Cards[nCards].m = 1.0;
     Cards[nCards].z = nCards;
+    Cards[nCards].rot = 0.0;
+    Cards[nCards].flp = 0.0;
     nCards++;
   }
 
